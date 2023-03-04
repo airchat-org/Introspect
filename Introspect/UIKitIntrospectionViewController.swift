@@ -17,34 +17,6 @@ public class IntrospectionUIViewController: UIViewController {
 
 /// This is the same logic as IntrospectionView but for view controllers. Please see details above.
 public struct UIKitIntrospectionViewController<TargetViewControllerType: UIViewController>: UIViewControllerRepresentable {
-    public final class Coordinator: IntrospectionUIViewDelegate {
-        let selector: (IntrospectionUIViewController) -> TargetViewControllerType?
-        let customize: (TargetViewControllerType) -> Void
-
-        weak var viewController: IntrospectionUIViewController?
-
-        init(
-            selector: @escaping (IntrospectionUIViewController) -> TargetViewControllerType?,
-            customize: @escaping (TargetViewControllerType) -> Void
-        ) {
-            self.selector = selector
-            self.customize = customize
-        }
-
-        func didMoveToWindow() {
-            Task { @MainActor in
-                guard
-                    let viewController,
-                    let targetView = selector(viewController)
-                else {
-                    return
-                }
-
-                customize(targetView)
-            }
-        }
-    }
-    
     let selector: (IntrospectionUIViewController) -> TargetViewControllerType?
     let customize: (TargetViewControllerType) -> Void
     
@@ -71,10 +43,6 @@ public struct UIKitIntrospectionViewController<TargetViewControllerType: UIViewC
         return viewController
     }
 
-    public func makeCoordinator() -> Coordinator {
-        .init(selector: selector, customize: customize)
-    }
-    
     /// SwiftUI state changes after `makeUIViewController` will trigger this function, not
     /// `makeUIViewController`, so we need to call the handler again to allow re-customization
     /// based on the newest state.
@@ -82,16 +50,11 @@ public struct UIKitIntrospectionViewController<TargetViewControllerType: UIViewC
         _ viewController: IntrospectionUIViewController,
         context: UIViewControllerRepresentableContext<UIKitIntrospectionViewController>
     ) {
-        (viewController.view as? IntrospectionUIView)?.delegate = context.coordinator
-        context.coordinator.viewController = viewController
-
         guard let targetView = selector(viewController) else { return }
-        customize(targetView)
-    }
 
-    /// Avoid memory leaks.
-    public static func dismantleUIViewController(_ viewController: IntrospectionUIViewController, coordinator: ()) {
-        (viewController.view as? IntrospectionUIView)?.delegate = nil
+        DispatchQueue.main.async {
+            customize(targetView)
+        }
     }
 }
 #endif
