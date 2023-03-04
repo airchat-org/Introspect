@@ -2,8 +2,14 @@
 import UIKit
 import SwiftUI
 
+protocol IntrospectionUIViewDelegate: AnyObject {
+    func didMoveToWindow()
+}
+
 /// Introspection UIView that is inserted alongside the target view.
 public class IntrospectionUIView: UIView {
+    weak var delegate: IntrospectionUIViewDelegate?
+    
     required init() {
         super.init(frame: .zero)
         isHidden = true
@@ -14,11 +20,38 @@ public class IntrospectionUIView: UIView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    override public func didMoveToWindow() {
+        super.didMoveToWindow()
+        delegate?.didMoveToWindow()
+    }
 }
 
 /// Introspection View that is injected into the UIKit hierarchy alongside the target view.
 /// After `updateUIView` is called, it calls `selector` to find the target view, then `customize` when the target view is found.
 public struct UIKitIntrospectionView<TargetViewType: UIView>: UIViewRepresentable {
+//    public final class Coordinator: IntrospectionUIViewDelegate {
+//        let selector: (IntrospectionUIView) -> TargetViewType?
+//        let customize: (TargetViewType) -> Void
+//
+//        weak var view: IntrospectionUIView?
+//
+//        init(
+//            selector: @escaping (IntrospectionUIView) -> TargetViewType?,
+//            customize: @escaping (TargetViewType) -> Void
+//        ) {
+//            self.selector = selector
+//            self.customize = customize
+//        }
+//
+//        func didMoveToWindow() {
+//            Task { @MainActor in
+//                guard let view, let targetView = selector(view) else { return }
+//                customize(targetView)
+//            }
+//        }
+//    }
+    
     /// Method that introspects the view hierarchy to find the target view.
     /// First argument is the introspection view itself, which is contained in a view host alongside the target view.
     let selector: (IntrospectionUIView) -> TargetViewType?
@@ -45,6 +78,10 @@ public struct UIKitIntrospectionView<TargetViewType: UIView>: UIViewRepresentabl
         return view
     }
 
+//    public func makeCoordinator() -> Coordinator {
+//        .init(selector: selector, customize: customize)
+//    }
+    
     /// SwiftUI state changes after `makeUIView` will trigger this function, not
     /// `makeUIView`, so we need to call the handler again to allow re-customization
     /// based on the newest state.
@@ -52,11 +89,16 @@ public struct UIKitIntrospectionView<TargetViewType: UIView>: UIViewRepresentabl
         _ view: IntrospectionUIView,
         context: UIViewRepresentableContext<UIKitIntrospectionView>
     ) {
-        guard let targetView = selector(view) else { return }
+//        view.delegate = context.coordinator
+//        context.coordinator.view = view
 
-        DispatchQueue.main.async {
-            customize(targetView)
-        }
+        guard let targetView = selector(view) else { return }
+        customize(targetView)
+    }
+    
+    /// Avoid memory leaks.
+    public static func dismantleUIView(_ view: IntrospectionUIView, coordinator: ()) {
+//        view.delegate = nil
     }
 }
 #endif
