@@ -17,6 +17,33 @@ public class IntrospectionUIViewController: UIViewController {
 
 /// This is the same logic as IntrospectionView but for view controllers. Please see details above.
 public struct UIKitIntrospectionViewController<TargetViewControllerType: UIViewController>: UIViewControllerRepresentable {
+    public final class Coordinator: IntrospectionUIViewDelegate {
+        let selector: (IntrospectionUIViewController) -> TargetViewControllerType?
+        let customize: (TargetViewControllerType) -> Void
+
+        weak var viewController: IntrospectionUIViewController?
+
+        init(
+            selector: @escaping (IntrospectionUIViewController) -> TargetViewControllerType?,
+            customize: @escaping (TargetViewControllerType) -> Void
+        ) {
+            self.selector = selector
+            self.customize = customize
+        }
+
+        func didMoveToWindow() {
+            Task { @MainActor in
+                guard
+                    let viewController,
+                    let targetView = selector(viewController)
+                else {
+                    return
+                }
+
+                customize(targetView)
+            }
+        }
+    }
     
     let selector: (IntrospectionUIViewController) -> TargetViewControllerType?
     let customize: (TargetViewControllerType) -> Void
@@ -40,16 +67,12 @@ public struct UIKitIntrospectionViewController<TargetViewControllerType: UIViewC
         let viewController = IntrospectionUIViewController()
         viewController.accessibilityLabel = "IntrospectionUIViewController<\(TargetViewControllerType.self)>"
         viewController.view.accessibilityLabel = "IntrospectionUIView<\(TargetViewControllerType.self)>"
-        (viewController.view as? IntrospectionUIView)?.moveToWindowHandler = { [weak viewController] in
-            guard let viewController = viewController else { return }
-            DispatchQueue.main.async {
-                guard let targetView = self.selector(viewController) else {
-                    return
-                }
-                self.customize(targetView)
-            }
-        }
+
         return viewController
+    }
+
+    public func makeCoordinator() -> Coordinator {
+        .init(selector: selector, customize: customize)
     }
     
     /// SwiftUI state changes after `makeUIViewController` will trigger this function, not
@@ -59,15 +82,16 @@ public struct UIKitIntrospectionViewController<TargetViewControllerType: UIViewC
         _ viewController: IntrospectionUIViewController,
         context: UIViewControllerRepresentableContext<UIKitIntrospectionViewController>
     ) {
-        guard let targetView = self.selector(viewController) else {
-            return
-        }
-        self.customize(targetView)
+        (viewController.view as? IntrospectionUIView)?.delegate = context.coordinator
+        context.coordinator.viewController = viewController
+
+        guard let targetView = selector(viewController) else { return }
+        customize(targetView)
     }
 
     /// Avoid memory leaks.
     public static func dismantleUIViewController(_ viewController: IntrospectionUIViewController, coordinator: ()) {
-        (viewController.view as? IntrospectionUIView)?.moveToWindowHandler = nil
+        (viewController.view as? IntrospectionUIView)?.delegate = nil
     }
 }
 #endif
