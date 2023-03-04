@@ -20,7 +20,12 @@ public class IntrospectionUIView: UIView {
     
     override public func didMoveToWindow() {
         super.didMoveToWindow()
-        moveToWindowHandler?()
+
+        if window == nil {
+            moveToWindowHandler = nil
+        } else {
+            moveToWindowHandler?()
+        }
     }
 }
 
