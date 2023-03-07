@@ -85,8 +85,10 @@ public struct UIKitIntrospectionViewController<TargetViewControllerType: UIViewC
         (viewController.view as? IntrospectionUIView)?.delegate = context.coordinator
         context.coordinator.viewController = viewController
 
-        guard let targetView = selector(viewController) else { return }
-        customize(targetView)
+        Task { @MainActor in
+            guard let targetView = selector(viewController) else { return }
+            customize(targetView)
+        }
     }
 
     /// Avoid memory leaks.
