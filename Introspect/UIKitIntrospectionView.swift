@@ -92,8 +92,10 @@ public struct UIKitIntrospectionView<TargetViewType: UIView>: UIViewRepresentabl
         view.delegate = context.coordinator
         context.coordinator.view = view
 
-        guard let targetView = selector(view) else { return }
-        customize(targetView)
+        Task { @MainActor in
+            guard let targetView = selector(view) else { return }
+            customize(targetView)
+        }
     }
     
     /// Avoid memory leaks.
