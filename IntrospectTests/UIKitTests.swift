@@ -183,6 +183,7 @@ private struct ListTestView: View {
     }
 }
 
+
 private struct ScrollTestView: View {
     
     let spy1: (UIScrollView) -> Void
@@ -225,6 +226,32 @@ private struct NestedScrollTestView: View {
             }
             .introspectScrollView { scrollView in
                 self.spy1(scrollView)
+            }
+        }
+    }
+}
+
+private struct MaskedScrollTestView: View {
+    
+    let spy1: (UIScrollView) -> Void
+    let spy2: (UIScrollView) -> Void
+    
+    var body: some View {
+        HStack {
+            ScrollView {
+                Text("Item 1")
+            }
+            .introspectScrollView { scrollView in
+                self.spy1(scrollView)
+            }
+            .clipped()
+            .clipShape(RoundedRectangle(cornerRadius: 20.0))
+            .cornerRadius(2.0)
+            ScrollView {
+                Text("Item 1")
+                .introspectScrollView { scrollView in
+                    self.spy2(scrollView)
+                }
             }
         }
     }
@@ -340,6 +367,7 @@ private struct SegmentedControlTestView: View {
     }
 }
 
+#if os(iOS)
 @available(iOS 14.0, *)
 @available(tvOS, unavailable)
 private struct ColorWellTestView: View {
@@ -353,6 +381,7 @@ private struct ColorWellTestView: View {
         }
     }
 }
+#endif
 
 import MapKit
 @available(iOS 14, tvOS 14, *)
@@ -367,28 +396,6 @@ private struct MapTestView: View {
             }
     }
 }
-
-#if swift(>=5.5) && !os(tvOS) // swift check needed for some reason for tvOS 14 testing not to fail on CI
-@available(iOS 15, *)
-@available(tvOS, unavailable)
-private struct SearchControllerTestView: View {
-    @State var searchText = ""
-    let spy: () -> Void
-    
-    var body: some View {
-        NavigationView {
-            EmptyView()
-                .searchable(text: $searchText)
-                .introspectSearchController { searchController in
-                    self.spy()
-                }
-        }
-        .introspectSplitViewController { splitViewController in
-            splitViewController.preferredDisplayMode = .oneOverSecondary
-        }
-    }
-}
-#endif
 
 class UIKitTests: XCTestCase {
     func testNavigation() {
@@ -496,6 +503,34 @@ class UIKitTests: XCTestCase {
                 expectation2.fulfill()
             }
         )
+        TestUtils.present(view: view)
+        wait(for: [expectation1, expectation2], timeout: TestUtils.Constants.timeout)
+
+        let unwrappedScrollView1 = try XCTUnwrap(scrollView1)
+        let unwrappedScrollView2 = try XCTUnwrap(scrollView2)
+
+        XCTAssertNotEqual(unwrappedScrollView1, unwrappedScrollView2)
+    }
+    
+    func testMaskedScrollView() throws {
+        
+        let expectation1 = XCTestExpectation()
+        let expectation2 = XCTestExpectation()
+
+        var scrollView1: UIScrollView?
+        var scrollView2: UIScrollView?
+
+        let view = MaskedScrollTestView(
+            spy1: { scrollView in
+                scrollView1 = scrollView
+                expectation1.fulfill()
+            },
+            spy2: { scrollView in
+                scrollView2 = scrollView
+                expectation2.fulfill()
+            }
+        )
+        
         TestUtils.present(view: view)
         wait(for: [expectation1, expectation2], timeout: TestUtils.Constants.timeout)
 
@@ -659,9 +694,29 @@ class UIKitTests: XCTestCase {
         }
     }
 
-    #if swift(>=5.5) && !os(tvOS)
-    @available(iOS 15, *)
+    @available(tvOS, unavailable)
     func testSearchController() {
+        guard #available(iOS 15, *) else {
+            return
+        }
+        struct SearchControllerTestView: View {
+            @State var searchText = ""
+            let spy: () -> Void
+
+            var body: some View {
+                NavigationView {
+                    EmptyView()
+                        .searchable(text: $searchText)
+                        .introspectSearchController { searchController in
+                            self.spy()
+                        }
+                }
+                .introspectSplitViewController { splitViewController in
+                    splitViewController.preferredDisplayMode = .oneOverSecondary
+                }
+            }
+        }
+
         let expectation = XCTestExpectation()
         let view = SearchControllerTestView(spy: {
             expectation.fulfill()
@@ -669,7 +724,6 @@ class UIKitTests: XCTestCase {
         TestUtils.present(view: view)
         wait(for: [expectation], timeout: TestUtils.Constants.timeout)
     }
-    #endif
     #endif
     
     @available(iOS 14, tvOS 14, *)

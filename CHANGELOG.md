@@ -3,6 +3,126 @@ Changelog
 
 ## master
 
+## [0.11.0]
+
+- Added: visionOS support (#327)
+- Infrastructure: run CI tests on iOS & tvOS 17 (#323)
+
+## [0.10.0]
+
+- Added: `SecureField` introspection (#317)
+
+## [0.9.2]
+
+- Fixed: occasionally wrong status bar style (#313)
+- Infrastructure: added UI Test suite (#314)
+- Infrastructure: disabled "Autocreate schemes" (#308)
+
+## [0.9.1]
+
+- Fixed: only box up content for `.view` introspection (#305)
+
+## [0.9.0]
+
+- Added: view controller introspection (#298)
+- Added: page control introspection (#297)
+
+## [0.8.0]
+
+- Added: `Map` introspection (#288)
+- Added: advanced range-based platform version predicates (#285)
+- Changed: renamed `@_spi(Internals)` to `@_spi(Advanced)` (#290)
+- Documentation: generate docs for extensions (#282)
+- Infrastructure: set up `tea` for CI and local environments (#276)
+
+## [0.7.0]
+
+### SwiftUIIntrospect
+
+- Added: window introspection (#269)
+- Added: `.sheet` introspection (#268)
+- Added: `.fullScreenCover` introspection (#268)
+- Added: `.popover` introspection (#268)
+- Added: `VideoPlayer` introspection (#264)
+- Added: `SignInWithAppleButton` introspection (#265)
+- Added: `View` introspection on macOS (#266)
+- Improved: `View` introspection accuracy (#266)
+- Documentation: added some more docs for public symbols (#273)
+
+### Introspect
+
+This module is now deprecated (#272) and will be removed later this year (whenever iOS/tvOS 17 come out).
+
+## [0.6.3]
+
+### SwiftUIIntrospect
+
+- Changed: disabled accessibility for introspection views (#261)
+- Documentation: code samples are now split by OS (#262)
+- Infrastructure: use [`xcodes`](https://github.com/XcodesOrg/xcodes) via [`tea`](https://github.com/teaxyz/cli) on CI (#261)
+
+## [0.6.2]
+
+### SwiftUIIntrospect
+
+- Documentation: added docs for all view types (#258)
+- Infrastructure: fixed iOS/tvOS 13 checks on CI (#257)
+
+## [0.6.1]
+
+### SwiftUIIntrospect
+
+- Improved: optimized receiver lookup algorithm (#246)
+- Infrastructure: refactored `.introspect` to use `ViewModifier` (#253)
+- Infrastructure: retry runtime download on timeout or error on CI (#247)
+
+## [0.6.0]
+
+### SwiftUIIntrospect
+
+- Added: iOS 17 / tvOS 17 / macOS 14 compatibility (#243)
+
+### Introspect
+
+- Fixed: `UIColorWell` build error on tvOS 13 (#217)
+
+## [0.5.2]
+
+### SwiftUIIntrospect
+
+- Added: selector overrides (#239)
+- Changed: optimized ancestor controller selectors (#240)
+
+## [0.5.1]
+
+### SwiftUIIntrospect
+
+- Fixed: SwiftUIIntrospect.podspec (#237)
+
+## [0.5.0]
+
+### SwiftUIIntrospect
+
+- Added: support for custom selectors (#233)
+- Changed: unified introspect modifiers into one (#232)
+- Fixed: `searchField` introspection (#234)
+- Documentation: added explicit SPI import (#229)
+
+## [0.4.0]
+
+- Added: all-new implementation, API, and module (SwiftUIIntrospect) (#207)
+
+## [0.3.1]
+
+- Fixed: wrong Swift version in podspec (#220)
+
+## [0.3.0]
+
+- Changed: minimum language version required is now Swift 5.5 (#209)
+- Fixed: finding UIScrollViews that are clipped(), masked or combined with clipShape() or cornerRadius() (#213)
+- Documentation: UICollectionView introspection support in README (#218)
+- Infrastructure: symlink older SDKs to use in newer Xcode versions on CI (#208)
+
 ## [0.2.3]
 
 - Fixed: `introspectPagedTabView` on iOS 16 (#200)
