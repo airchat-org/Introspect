@@ -112,12 +112,14 @@ struct IntrospectionView<Target: PlatformEntity>: PlatformViewControllerRepresen
 
     func makePlatformViewController(context: Context) -> IntrospectionPlatformViewController {
         let controller = IntrospectionPlatformViewController(id: id) { controller in
-            guard let target = selector(controller) else {
-                return
+            Task { @MainActor in
+                guard let target = selector(controller) else {
+                    return
+                }
+                context.coordinator.target = target
+                customize(target)
+                controller.handler = nil
             }
-            context.coordinator.target = target
-            customize(target)
-            controller.handler = nil
         }
 
         // - Workaround -
@@ -132,10 +134,12 @@ struct IntrospectionView<Target: PlatformEntity>: PlatformViewControllerRepresen
     }
 
     func updatePlatformViewController(_ controller: IntrospectionPlatformViewController, context: Context) {
-        guard let target = context.coordinator.target ?? selector(controller) else {
-            return
+        Task { @MainActor in
+            guard let target = context.coordinator.target ?? selector(controller) else {
+                return
+            }
+            customize(target)
         }
-        customize(target)
     }
 
     static func dismantlePlatformViewController(_ controller: IntrospectionPlatformViewController, coordinator: Coordinator) {
