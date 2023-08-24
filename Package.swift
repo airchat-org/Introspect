@@ -1,4 +1,4 @@
-// swift-tools-version:5.4
+// swift-tools-version:5.5
 
 import PackageDescription
 
@@ -6,8 +6,8 @@ let package = Package(
     name: "Introspect",
     platforms: [
         .iOS(.v13),
-        .macOS(.v10_15),
         .tvOS(.v13),
+        .macOS(.v10_15),
     ],
     products: [
         .library(name: "Introspect", targets: ["Introspect"]),
@@ -17,12 +17,12 @@ let package = Package(
     targets: [
         .target(
             name: "Introspect",
-            path: "Introspect" // TODO: rename to Sources for v1.0
+            path: "Introspect"
         ),
         .testTarget(
             name: "IntrospectTests",
             dependencies: ["Introspect"],
-            path: "IntrospectTests" // TODO: rename to Tests for v1.0
+            path: "IntrospectTests"
         ),
     ]
 )
