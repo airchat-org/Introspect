@@ -92,11 +92,13 @@ extension iOSViewVersion<FormWithGroupedStyleType, UITableView> {
     public static let v14 = Self.unavailable()
     @available(*, unavailable, message: ".formStyle(.grouped) isn't available on iOS 15")
     public static let v15 = Self.unavailable()
+    public static let v18 = Self(for: .v18)
 }
 
 extension iOSViewVersion<FormWithGroupedStyleType, UICollectionView> {
     public static let v16 = Self(for: .v16)
     public static let v17 = Self(for: .v17)
+    public static let v18 = Self(for: .v18)
 }
 
 extension tvOSViewVersion<FormWithGroupedStyleType, UITableView> {
