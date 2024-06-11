@@ -1,5 +1,7 @@
+#if !os(watchOS)
 import Foundation
 
+@_spi(Internals)
 public enum PlatformVersionCondition {
     case past
     case current
@@ -7,22 +9,30 @@ public enum PlatformVersionCondition {
 }
 
 public protocol PlatformVersion {
+    @_spi(Internals)
     var condition: PlatformVersionCondition? { get }
 }
 
 extension PlatformVersion {
+    @_spi(Internals)
     public var isCurrent: Bool {
         condition == .current
     }
 
+    @_spi(Internals)
     public var isCurrentOrPast: Bool {
         condition == .current || condition == .past
     }
+  
+    @_spi(Internals)
+    public var condition: PlatformVersionCondition? { nil }
 }
 
 public struct iOSVersion: PlatformVersion {
+    @_spi(Internals)
     public let condition: PlatformVersionCondition?
 
+    @_spi(Internals)
     public init(condition: () -> PlatformVersionCondition?) {
         self.condition = condition()
     }
@@ -101,8 +111,10 @@ extension iOSVersion {
 }
 
 public struct tvOSVersion: PlatformVersion {
+    @_spi(Internals)
     public let condition: PlatformVersionCondition?
 
+    @_spi(Internals)
     public init(condition: () -> PlatformVersionCondition?) {
         self.condition = condition()
     }
@@ -181,8 +193,10 @@ extension tvOSVersion {
 }
 
 public struct macOSVersion: PlatformVersion {
+    @_spi(Internals)
     public let condition: PlatformVersionCondition?
 
+    @_spi(Internals)
     public init(condition: () -> PlatformVersionCondition?) {
         self.condition = condition()
     }
@@ -275,8 +289,10 @@ extension macOSVersion {
 }
 
 public struct visionOSVersion: PlatformVersion {
+    @_spi(Internals)
     public let condition: PlatformVersionCondition?
 
+    @_spi(Internals)
     public init(condition: () -> PlatformVersionCondition?) {
         self.condition = condition()
     }
@@ -297,3 +313,4 @@ extension visionOSVersion {
         #endif
     }
 }
+#endif

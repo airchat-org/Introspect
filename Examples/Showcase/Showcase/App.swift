@@ -1,7 +1,7 @@
 import SwiftUI
 
 #if os(iOS) || os(tvOS)
-@UIApplicationMain
+@main
 final class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
@@ -21,5 +21,11 @@ struct App: SwiftUI.App {
             AppView()
         }
     }
+}
+#endif
+
+#if swift(>=5.9)
+#Preview {
+    AppView()
 }
 #endif

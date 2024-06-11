@@ -1,3 +1,4 @@
+#if !os(watchOS)
 import SwiftUI
 
 /// The scope of introspection i.e. where introspect should look to find
@@ -110,6 +111,17 @@ public protocol PlatformEntity: AnyObject {
 
 extension PlatformEntity {
     @_spi(Internals)
+    public var ancestor: Base? { nil }
+
+    @_spi(Internals)
+    public var descendants: [Base] { [] }
+
+    @_spi(Internals)
+    public func isDescendant(of other: Base) -> Bool { false }
+}
+
+extension PlatformEntity {
+    @_spi(Internals)
     public var ancestors: some Sequence<Base> {
         sequence(first: self~, next: { $0.ancestor~ }).dropFirst()
     }
@@ -196,24 +208,11 @@ extension PlatformViewController: PlatformEntity {
 
 #if canImport(UIKit)
 extension UIPresentationController: PlatformEntity {
-    @_spi(Internals)
-    public var ancestor: UIPresentationController? { nil }
-
-    @_spi(Internals)
-    public var descendants: [UIPresentationController] { [] }
-
-    @_spi(Internals)
-    public func isDescendant(of other: UIPresentationController) -> Bool { false }
+    public typealias Base = UIPresentationController
 }
 #elseif canImport(AppKit)
 extension NSWindow: PlatformEntity {
-    @_spi(Internals)
-    public var ancestor: NSWindow? { nil }
-
-    @_spi(Internals)
-    public var descendants: [NSWindow] { [] }
-
-    @_spi(Internals)
-    public func isDescendant(of other: NSWindow) -> Bool { false }
+    public typealias Base = NSWindow
 }
+#endif
 #endif

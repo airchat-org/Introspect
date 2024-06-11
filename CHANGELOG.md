@@ -3,6 +3,49 @@ Changelog
 
 ## master
 
+## [1.1.4]
+
+This version removes the SimulatorStatusMagic dev dependency in order for SwiftUIIntrospect not to require a privacy manifest (#411). See #406 for more details.
+
+## [1.1.3]
+
+Due to a mysterious bug on Apple's part that may cause a complete app hang, the unfortunate decision has been made to remove support for `SignInWithAppleButton` introspection.
+
+We apologize for this inconvenience.
+
+More details can be found at https://github.com/siteline/swiftui-introspect/issues/400
+
+## [1.1.2]
+
+- Fixed: "Protocol requirement cannot be declared '@_spi'" (#392)
+
+## [1.1.1]
+
+- Fixed: SwiftUI previews on watchOS no longer fail to build (#380)
+- Infrastructure: fixed iOS 17 tests failing on CI (#381)
+
+## [1.1.0]
+
+- Removed: `Toggle` introspection on visionOS (#373)
+
+## [1.0.0]
+
+- Removed: obsoleted Introspect module (#275)
+- Infrastructure: renamed default branch to `main`
+- Infrastructure: fixed modal introspection tests (#345)
+- Infrastructure: run UI Tests on iOS 13 (#347)
+- Infrastructure: run tests on macCatalyst (#346)
+
+## [0.12.0]
+
+- Added: `@Weak` property wrapper (#341)
+- Documentation: added advanced usage section to README (#341)
+- Documentation: added community projects section to README (#342)
+
+## [0.11.1]
+
+- Fixed: `@_spi` errors (#339)
+
 ## [0.11.0]
 
 - Added: visionOS support (#327)
